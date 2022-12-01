@@ -7,9 +7,9 @@ sum_calories <- function(block) {
   lines <- strsplit(block, "\n")[[1L]]
   sum(strtoi(lines, 10L))[[1L]]
 }
+calorie_counts <- sapply(blocks, sum_calories)
 names(calorie_counts) <- paste("elf", seq(length(calorie_counts)))
 
-calorie_counts <- sapply(blocks, sum_calories)
 cat("Puzzle 1:", max(calorie_counts), "\n")
 
 # Puzzle 2
