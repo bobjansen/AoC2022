@@ -1,0 +1,47 @@
+library(data.table)
+
+
+file <- "input3.csv"
+txt <- readChar(file, file.info(file)$size)
+lines <- strsplit(txt, "\n")[[1L]]
+
+# Puzzle 5
+
+index <- 0L
+create_backpack <- function(line) {
+  items <- strsplit(line, "")[[1L]]
+  num_items <- length(items)
+  index <<- index + 1L
+  data.table::data.table(
+    ElfID = index,
+    Elf = paste("Elf", index),
+    Compartment1 = items[1:(num_items / 2L)],
+    Compartment2 = items[(num_items / 2L + 1):num_items]
+  )
+}
+
+backpacks <- rbindlist(lapply(lines, create_backpack))
+
+left <- backpacks[, .(Elf, ElfID, Item = Compartment1)]
+right <- backpacks[, .(Elf, ElfID, Item = Compartment2)]
+
+overlaps <- unique(merge(left, right))
+
+priority <- data.table::data.table(Item = c(letters, LETTERS))
+priority <- priority[, Priority := .I]
+
+overlaps <- merge(overlaps, priority, by = "Item")
+cat("Puzzle 5:", overlaps[, sum(Priority)], "\n")
+
+# Puzzle 6
+
+backpacks <- unique(rbind(left, right))
+groups = data.table(
+  ElfID = 1:index,
+  Group = rep(1:(index / 3L), each = 3L)
+)
+backpacks <- merge(backpacks, groups, by = "ElfID")
+
+badges <- backpacks[, .N, .(Group, Item)][N == 3L]
+badges <- merge(badges, priority, by = "Item")
+cat("Puzzle 6:", badges[, sum(Priority)], "\n")
