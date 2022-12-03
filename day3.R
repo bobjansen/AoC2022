@@ -22,7 +22,7 @@ backpacks <- rbindlist(lapply(lines, create_backpack))
 left <- backpacks[, .(ElfID, Item = Compartment1)]
 right <- backpacks[, .(ElfID, Item = Compartment2)]
 
-overlaps <- unique(merge(left, right))
+overlaps <- unique(merge(left, right, by = c("ElfID", "Item")))
 
 priority <- data.table::data.table(Item = c(letters, LETTERS))
 priority <- priority[, Priority := .I]
