@@ -3,13 +3,12 @@ library(data.table)
 
 file <- "input3.csv"
 txt <- readChar(file, file.info(file)$size)
-lines <- strsplit(txt, "\n")[[1L]]
+lines <- strsplit(strsplit(txt, "\n")[[1L]], "")
 
 # Puzzle 5
 
 index <- 0L
-create_backpack <- function(line) {
-  items <- strsplit(line, "")[[1L]]
+create_backpack <- function(items) {
   num_items <- length(items)
   index <<- index + 1L
   data.table::data.table(
@@ -19,7 +18,6 @@ create_backpack <- function(line) {
     Compartment2 = items[(num_items / 2L + 1):num_items]
   )
 }
-
 backpacks <- rbindlist(lapply(lines, create_backpack))
 
 left <- backpacks[, .(Elf, ElfID, Item = Compartment1)]
@@ -36,7 +34,7 @@ cat("Puzzle 5:", overlaps[, sum(Priority)], "\n")
 # Puzzle 6
 
 backpacks <- unique(rbind(left, right))
-groups = data.table(
+groups = data.table::data.table(
   ElfID = 1:index,
   Group = rep(1:(index / 3L), each = 3L)
 )
