@@ -13,15 +13,14 @@ create_backpack <- function(items) {
   index <<- index + 1L
   data.table::data.table(
     ElfID = index,
-    Elf = paste("Elf", index),
     Compartment1 = items[1:(num_items / 2L)],
     Compartment2 = items[(num_items / 2L + 1):num_items]
   )
 }
 backpacks <- rbindlist(lapply(lines, create_backpack))
 
-left <- backpacks[, .(Elf, ElfID, Item = Compartment1)]
-right <- backpacks[, .(Elf, ElfID, Item = Compartment2)]
+left <- backpacks[, .(ElfID, Item = Compartment1)]
+right <- backpacks[, .(ElfID, Item = Compartment2)]
 
 overlaps <- unique(merge(left, right))
 
