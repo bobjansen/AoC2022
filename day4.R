@@ -1,11 +1,9 @@
 library(data.table)
 
-assignments <- data.table::fread("input4.csv", sep=",", header = FALSE)
-assignments[, c("lb1", "ub1") := tstrsplit(V1, "-")]
-assignments[, c("lb2", "ub2") := tstrsplit(V2, "-")]
-assignments <- assignments[,
-  lapply(.SD, as.integer), .SDcols = c("lb1", "ub1", "lb2", "ub2")
-]
+assignments <- data.table::fread("input4.csv", sep="", header = FALSE)
+assignments <- assignments[, tstrsplit(
+  V1, "-|,", type.convert = TRUE, names = c("lb1", "ub1", "lb2", "ub2")
+)]
 
 contained <- assignments[(lb1 >= lb2 & ub1 <= ub2) | (lb2 >= lb1 & ub2 <= ub1)]
 cat("Puzzle 7:", nrow(contained), "\n")
