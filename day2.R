@@ -19,9 +19,9 @@ translateMe <- function(me) {
 winner <- function(them , me) {
   scores <- rep(0L, length(them)) # Initialize to loss
   scores[them == me] <- 3L
-  scores[them == "Rock" & me == "Paper"] <- 6L
-  scores[them == "Paper" & me == "Scissors"] <- 6L
-  scores[them == "Scissors" & me == "Rock"] <- 6L
+  scores[(them == "Rock" & me == "Paper") |
+           (them == "Paper" & me == "Scissors") |
+           (them == "Scissors" & me == "Rock")] <- 6L
   scores
 }
 
@@ -39,7 +39,7 @@ calculateScore <- function(dt) {
   dt[, Score := ScoreResult + ScoreChoice]
   dt[, sum(Score)]
 }
-cat("My score:", calculateScore(dt), "\n")
+cat("Puzzle 3:", calculateScore(dt), "\n")
 
 # Puzzle 4
 
@@ -61,4 +61,4 @@ fixResultColumn <- function(them, result) {
 
 dt[, Me := fixResultColumn(Them, Me)]
 
-cat("My score:", calculateScore(dt), "\n")
+cat("Puzzle 4:", calculateScore(dt), "\n")
