@@ -1,23 +1,9 @@
-library(data.table)
-
-# Puzzle 1
+source("helpers.R")
 file <- "input5.txt"
-txt <- readChar(file, file.info(file)$size)
-parts <- strsplit(txt, "\n\n")[[1L]]
 
 filter_empty <- function(stack) {
   stack[!stack %in% c("[_]", NA_character_)]
 }
-
-stacks <- gsub("    ", " [_]", parts[[1L]])
-stacks <- strsplit(stacks, "\n")[[1L]] |>
-  strsplit(split = "\n")
-
-stacks <- stacks[1:(length(stacks) - 1L)] |>
-  sapply(strsplit, split = " ") |>
-  data.table::transpose() |>
-  lapply(rev) |>
-  sapply(filter_empty)
 
 split_moves <- function(line) {
   instructions <- strsplit(line, " ")[[1L]]
@@ -28,22 +14,47 @@ split_moves <- function(line) {
   )
 }
 
-moves <- parts[[2L]] |> strsplit(split = "\n")
-moves <- lapply(moves[[1L]], split_moves)
-
-do_move <- function(count, from, to) {
-  split_at <- length(stacks[from][[1L]]) - count
-  if (split_at == 0L) {
-    stacks[to][[1L]] <- c(stacks[to][[1L]], rev(stacks[from][[1L]]))
-    stacks[from][[1L]] <- character(0L)
-  } else {
-    to_move <- stacks[from][[1L]][(split_at + 1L):length(stacks[from][[1L]])]
-    stacks[from][[1L]] <- stacks[from][[1L]][1:split_at]
-    stacks[to][[1L]] <- c(stacks[to][[1L]], rev(to_move))
-  }
-  stacks <<- stacks
+do_move <- function(stacks, count, from, to, move_fun = identity) {
+  stacks[[to]] <- c(stacks[[to]], move_fun(tail(stacks[[from]], count)))
+  stacks[[from]] <- stacks[[from]][seq_len(length(stacks[[from]]) - count)]
+  stacks
 }
 
-sapply(moves, do.call, what = do_move)
+prepare_data <- function(file) {
+  txt <- readFile(file)
+  parts <- strsplit(txt, "\n\n")[[1L]]
 
-cat(gsub("\\[|\\]", "", paste0(sapply(stacks, tail, 1L), collapse = "")))
+  stacks <- gsub("    ", " [_]", parts[[1L]]) |>
+    ustrsplit(split = "\n") |>
+    (\(.) head(., length(.) - 1L))() |>
+    sapply(strsplit, split = " ") |>
+    data.table::transpose() |>
+    lapply(rev) |>
+    sapply(filter_empty)
+
+  moves <- parts[[2L]] |>
+    ustrsplit(split = "\n") |>
+    lapply(split_moves)
+
+  list(stacks = stacks, moves = moves)
+}
+
+inputs <- prepare_data(file)
+stacks <- inputs[["stacks"]]
+for (move in inputs[["moves"]]) {
+  stacks <- do_move(
+    stacks, move[["count"]], move[["from"]], move[["to"]], move_fun = rev
+  )
+}
+cat_solution(
+  9L, paste(gsub("\\[|\\]", "", sapply(stacks, tail, 1L)), collapse = "")
+)
+
+inputs <- prepare_data(file)
+stacks <- inputs[["stacks"]]
+for (move in inputs[["moves"]]) {
+  stacks <- do_move(stacks, move[["count"]], move[["from"]], move[["to"]])
+}
+cat_solution(
+  10L, paste(gsub("\\[|\\]", "", sapply(stacks, tail, 1L)), collapse = "")
+)
