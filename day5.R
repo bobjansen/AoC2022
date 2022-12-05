@@ -6,7 +6,7 @@ filter_empty <- function(stack) {
 }
 
 split_moves <- function(line) {
-  instructions <- strsplit(line, " ")[[1L]]
+  instructions <- ustrsplit(line, " ")
   list(
     count = as.integer(instructions[[2L]]),
     from = as.integer(instructions[[4L]]),
@@ -21,8 +21,7 @@ do_move <- function(stacks, count, from, to, move_fun = identity) {
 }
 
 prepare_data <- function(file) {
-  txt <- readFile(file)
-  parts <- strsplit(txt, "\n\n")[[1L]]
+  parts <- ustrsplit(readFile(file), "\n\n")
 
   stacks <- gsub("    ", " [_]", parts[[1L]]) |>
     ustrsplit(split = "\n") |>
