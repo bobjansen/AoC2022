@@ -8,7 +8,6 @@ ustrsplit <- function(...) {
   unlist(tstrsplit(...))
 }
 
-
 catn <- function(...) {
   cat(...)
   cat("\n")

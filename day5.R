@@ -25,7 +25,7 @@ prepare_data <- function(file) {
 
   stacks <- gsub("    ", " [_]", parts[[1L]]) |>
     ustrsplit(split = "\n") |>
-    (\(.) head(., length(.) - 1L))() |>
+    stacks => head(stacks, length(stacks) - 1L) |>
     sapply(strsplit, split = " ") |>
     data.table::transpose() |>
     lapply(rev) |>
