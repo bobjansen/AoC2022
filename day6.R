@@ -13,11 +13,9 @@ find_marker <- function(stream, marker_size) {
   buffer <- c()
   for (i in seq_along(chars)) {
     char <- chars[[i]]
-    index <- match(char, buffer)
+    index <- match(char, buffer, nomatch = 0L)
     buffer <- c(buffer, char)
-    if (!is.na(index)) {
-      buffer <- buffer[(index + 1L):length(buffer)]
-    }
+    buffer <- buffer[(index + 1L):length(buffer)]
     if (length(buffer) == marker_size) {
       catn(paste0(buffer, collapse = ""))
       return(i)
