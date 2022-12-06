@@ -1,6 +1,6 @@
 library(data.table)
 
-assignments <- data.table::fread("input4.csv", sep="", header = FALSE)
+assignments <- data.table::fread("input4.csv", sep = "", header = FALSE)
 assignments <- assignments[, tstrsplit(
   V1, "-|,", type.convert = TRUE, names = c("lb1", "ub1", "lb2", "ub2")
 )]

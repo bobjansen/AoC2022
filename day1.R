@@ -1,11 +1,11 @@
 # Puzzle 1
 file <- "input1.txt"
 txt <- readChar(file, file.info(file)$size)
-blocks <- strsplit(txt, "\n\n")[[1L]]
+blocks <- ustrsplit(txt, "\n\n")
 
 sum_calories <- function(block) {
-  lines <- strsplit(block, "\n")[[1L]]
-  sum(as.integer(lines))[[1L]]
+  lines <- ustrsplit(block, "\n")
+  sum(as.integer(lines))
 }
 calorie_counts <- sapply(blocks, sum_calories)
 names(calorie_counts) <- paste("elf", seq(length(calorie_counts)))
