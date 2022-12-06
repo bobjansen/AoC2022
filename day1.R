@@ -1,6 +1,6 @@
 # Puzzle 1
 file <- "input1.txt"
-txt <- readChar(file, file.info(file)$size)
+txt <- readFile(file)
 blocks <- ustrsplit(txt, "\n\n")
 
 sum_calories <- function(block) {

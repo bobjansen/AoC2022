@@ -2,7 +2,7 @@ library(data.table)
 
 
 file <- "input3.csv"
-txt <- readChar(file, file.info(file)$size)
+txt <- readFile(file)
 lines <- strsplit(ustrsplit(txt, "\n"), "")
 
 # Puzzle 5
