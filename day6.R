@@ -21,7 +21,7 @@ find_marker <- function(stream, marker_size) {
       return(i)
     }
   }
-  invisible()
+  NA_integer_
 }
 
 # Puzzle 11
