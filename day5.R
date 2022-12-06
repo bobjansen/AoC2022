@@ -2,16 +2,18 @@ source("helpers.R")
 file <- "input5.txt"
 
 filter_empty <- function(stack) {
-  stack[!stack %in% c("[_]", NA_character_)]
+  sapply(stack, \(.) .[!. %in% c("[_]", NA_character_)])
 }
 
-split_moves <- function(line) {
-  instructions <- ustrsplit(line, " ")
-  list(
-    count = as.integer(instructions[[2L]]),
-    from = as.integer(instructions[[4L]]),
-    to = as.integer(instructions[[6L]])
-  )
+split_moves <- function(lines) {
+  instructions <- strsplit(lines, " ")
+  lapply(instructions, \(instr) {
+    list(
+      count = as.integer(instr[[2L]]),
+      from = as.integer(instr[[4L]]),
+      to = as.integer(instr[[6L]])
+    )
+  })
 }
 
 do_move <- function(stacks, count, from, to, move_fun = identity) {
@@ -26,14 +28,14 @@ prepare_data <- function(file) {
   stacks <- gsub("    ", " [_]", parts[[1L]]) |>
     ustrsplit(split = "\n") |>
     stacks => head(stacks, length(stacks) - 1L) |>
-    sapply(strsplit, split = " ") |>
+    strsplit(split = " ") |>
     data.table::transpose() |>
     lapply(rev) |>
-    sapply(filter_empty)
+    filter_empty()
 
   moves <- parts[[2L]] |>
     ustrsplit(split = "\n") |>
-    lapply(split_moves)
+    split_moves()
 
   list(stacks = stacks, moves = moves)
 }
