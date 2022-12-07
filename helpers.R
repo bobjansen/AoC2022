@@ -1,4 +1,5 @@
 library(data.table)
+library(recollections)
 
 readFile <- function(file) {
   readChar(file, file.info(file)$size)

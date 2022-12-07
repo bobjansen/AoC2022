@@ -9,6 +9,14 @@
     ]
   },
   "Packages": {
+    "Rcpp": {
+      "Package": "Rcpp",
+      "Version": "1.0.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e9c08b94391e9f3f97355841229124f2",
+      "Requirements": []
+    },
     "data.table": {
       "Package": "data.table",
       "Version": "1.14.6",
@@ -16,6 +24,17 @@
       "Repository": "CRAN",
       "Hash": "aecef50008ea7b57c76f1cb5c127fb02",
       "Requirements": []
+    },
+    "recollections": {
+      "Package": "recollections",
+      "Version": "0.1.0",
+      "Source": "Local",
+      "RemoteType": "local",
+      "RemoteUrl": "~/code/recollections",
+      "Hash": "750c731438050dad01cd65a5fa0eda6b",
+      "Requirements": [
+        "Rcpp"
+      ]
     },
     "renv": {
       "Package": "renv",
