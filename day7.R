@@ -28,7 +28,7 @@ $ ls
 txt <- readFile("input7.txt")
 
 ls_mode <- FALSE
-tree <- dictionary(lst = list(root = dictionary()))
+tree <- dictionary(lst = list(root = recollections::dictionary()))
 path = c("?")
 
 read_lines <- function(txt) {
@@ -60,14 +60,9 @@ run_command <- function(tree, command, arg) {
         current_dir <- get_current_dir(tree, path)
         path <<- c(path, arg)
         if (!arg %in% keys(current_dir)) {
-          setValue(current_dir, arg, dictionary())
+          setValue(current_dir, arg, recollections::dictionary())
         }
       }
-    }
-    if (length(path) == "1") {
-      catn("/")
-    } else {
-      catn(paste(path, collapse = "/"))
     }
   } else if (command == "ls") {
     ls_mode <<- TRUE
@@ -81,7 +76,7 @@ read_output <- function(tree, path, file_spec, name) {
   current_dir <- get_current_dir(tree, path)
   if (file_spec == "dir") {
     if (!name %in% keys(current_dir)) {
-      setValue(current_dir, name, dictionary())
+      setValue(current_dir, name, recollections::dictionary())
     }
   } else {
     setValue(current_dir, name, file_spec)
@@ -99,42 +94,27 @@ for (line in lines) {
   }
 }
 
-sizes <- dictionary()
-
+sizes <- recollections::dictionary()
 get_dir_sizes <- function(subtree, path) {
   total_size <- 0L
   for (file_name in keys(subtree)) {
     file <- getValue(subtree, file_name)
-    if (class(file) == "Dictionary") {
-      dir_size <- get_dir_sizes(
-        file,
-        paste(path, file_name, sep="/")
-      )
-      total_size <- total_size + dir_size
+    if (is(file, "Dictionary")) {
+      size <- get_dir_sizes(file, paste(path, file_name, sep = "/"))
     } else {
-      total_size <- total_size + as.integer(file)
+      size <- as.integer(file)
     }
+    total_size <- total_size + size
   }
   setValue(sizes, path, total_size)
   total_size
 }
-
-answer <- 0L
 get_dir_sizes(getValue(tree, "root"), "")
-for (key in keys(sizes)) {
-  size <- getValue(sizes, key)
-  catn(key, ": ", size, sep = "")
-  if (size <= 100000L) {
-    answer <- answer + size
-  }
-}
-
-cat_solution(13, answer)
 
 sizes <- sort(unlist(recollections::toList(sizes)))
+cat_solution(13, sum(sizes[sizes <= 100000L]))
 
 disk_size <- 70000000
 free <- disk_size - tail(sizes, 1)
 needed <- 30000000 - free
-cat_solution(13, sizes[sizes >= needed][[1L]])
-
+cat_solution(14, sizes[sizes >= needed][[1L]])
