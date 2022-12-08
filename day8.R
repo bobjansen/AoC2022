@@ -15,7 +15,6 @@ forest <- rbindlist(lapply(matrix, \(row) {
 }))
 forest <- data.table::setcolorder(forest, rev(names(forest)))
 data.table::setorderv(forest, c("row", "column"))
-forest[, ':='(ID = .I, on_edge = FALSE)]
 forest[
   row == 1L | column == 1L | row == num_rows | column == num_columns,
   ':='(on_edge = TRUE)
@@ -34,28 +33,31 @@ run <- function() {
   columns <- forest[, column]
   visible <- 2L * num_rows + 2L * (num_columns - 2L)
   max_scenic_score <- 0L
-  for (tree_index in forest[on_edge == FALSE, ID]) {
-    the_row <- rows[[tree_index]]
-    the_column <- columns[[tree_index]]
-    the_tree <- as.integer(matrix[[the_row]][[the_column]])
 
-    left_trees <- forest[row == the_row & column < the_column, tree]
-    right_trees <- forest[row == the_row & column > the_column, tree]
-    top_trees <- forest[row < the_row & column == the_column, tree]
-    bottom_trees <- forest[row > the_row & column == the_column, tree]
+  for (the_row in 2:(num_rows - 1L)) {
+    tree_row <- forest[row == the_row, tree]
+    for (the_column in 2:(num_columns - 1L)) {
 
-    if (all(left_trees < the_tree) || all(right_trees < the_tree) ||
-        all(top_trees < the_tree) || all(bottom_trees < the_tree)) {
-      visible <- visible + 1L
+      the_tree <- as.integer(matrix[[the_row]][[the_column]])
+      left_trees <- tree_row[1:(the_column - 1L)]
+      right_trees <- tree_row[(the_column + 1L):num_columns]
+      top_trees <- forest[row < the_row & column == the_column, tree]
+      bottom_trees <- forest[row > the_row & column == the_column, tree]
+
+      if (all(left_trees < the_tree) || all(right_trees < the_tree) ||
+          all(top_trees < the_tree) || all(bottom_trees < the_tree)) {
+        visible <- visible + 1L
+      }
+
+      left <- find_blocker(rev(left_trees) >= the_tree)
+      right <- find_blocker(right_trees >= the_tree)
+      top <- find_blocker(rev(top_trees) >= the_tree)
+      bottom <- find_blocker(bottom_trees >= the_tree)
+      max_scenic_score = max(left * right * top * bottom, max_scenic_score)
     }
-
-    left <- find_blocker(rev(left_trees) >= the_tree)
-    right <- find_blocker(right_trees >= the_tree)
-    top <- find_blocker(rev(top_trees) >= the_tree)
-    bottom <- find_blocker(bottom_trees >= the_tree)
-    max_scenic_score = max(left * right * top * bottom, max_scenic_score)
   }
   cat_solution(15, visible)
   cat_solution(16, max_scenic_score)
 }
 
+run()
