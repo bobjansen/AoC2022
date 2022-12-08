@@ -29,8 +29,6 @@ find_blocker <- function(vec) {
 }
 
 run <- function() {
-  rows <- forest[, row]
-  columns <- forest[, column]
   visible <- 2L * num_rows + 2L * (num_columns - 2L)
   max_scenic_score <- 0L
 
