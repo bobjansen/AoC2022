@@ -1,11 +1,5 @@
 source("helpers.R")
 
-txt <- "30373
-25512
-65332
-33549
-35390"
-
 txt <- readFile("input8.txt")
 
 rows <- ustrsplit(txt, "\n")
@@ -56,7 +50,6 @@ for (tree_index in forest[on_edge == FALSE, ID]) {
   the_row <- forest[tree_index, row]
   the_column <- forest[tree_index, column]
   the_tree <- forest[tree_index, tree]
-
 
   left <- find_blocker(
     forest[row == the_row & column < the_column, rev(tree)] >= the_tree)
