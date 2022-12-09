@@ -1,17 +1,7 @@
 source("helpers.R")
 
-txt <- "R 5
-U 8
-L 8
-D 3
-R 17
-D 10
-L 25
-U 20"
-
-txt   <- readFile("input9.txt")
+txt <- readFile("input9.txt")
 moves <- strsplit(ustrsplit(txt, "\n"), " ")
-moves
 
 directions <- list(
   R = complex(1, 1, 0),
@@ -21,9 +11,11 @@ directions <- list(
 )
 
 calculate_change <- function(p1, p2, last_move) {
-  delta <- p1 - p2
   move <- complex(1, 0, 0)
+
+  delta <- p1 - p2
   manhattan_distance <- abs(Re(delta)) + abs(Im(delta))
+
   if (manhattan_distance == 4) {
     move <- last_move
   } else if (manhattan_distance == 3) {
