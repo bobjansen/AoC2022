@@ -54,6 +54,7 @@ run <- function() {
       max_scenic_score = max(left * right * top * bottom, max_scenic_score)
     }
   }
+
   cat_solution(15, visible)
   cat_solution(16, max_scenic_score)
 }
