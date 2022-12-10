@@ -28,8 +28,8 @@ do_moves <- function(lines, snake_size = 2L) {
           snake[j,] <- snake[j,] + sign(delta)
         }
       }
-      tail_path_1 <- setValue(tail_path_1, toString(snake[2L,]), TRUE)
-      tail_path_9 <- setValue(tail_path_9, toString(snake[10L,]), TRUE)
+      tail_path_1$container$insert(toString(snake[2L,]), TRUE)
+      tail_path_9$container$insert(toString(snake[10L,]), TRUE)
     }
   }
   cat_solution(17, size(tail_path_1))

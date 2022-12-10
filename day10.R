@@ -14,7 +14,6 @@ instructions <- merge(instructions, cycles, on = "Instr")
 data.table::setorderv(instructions, "InstrIndex")
 instructions[, ':='(CycleCount = cumsum(Cost), RegisterX = NA_integer_)]
 instructions[Instr == "addx", RegisterX := cumsum(Arg) + 1L]
-instructions[, RegisterX := nafill(RegisterX, type = "locf")]
 
 program_length <- instructions[, max(CycleCount)]
 instructions <- merge(
@@ -28,12 +27,12 @@ instructions[, RegisterX := nafill(
   type = "locf")[2:(program_length + 1L)]]
 
 instructions[, ':='(
-  x_pos = (CycleCount - 1) %% 40,
-  y_pos = (CycleCount - 1) %/% 40
+  x_pos = (CycleCount - 1L) %% 40L,
+  y_pos = (CycleCount - 1L) %/% 40L
 )]
 instructions[, visible := abs(x_pos - RegisterX) <= 1L]
 
-cat_solution(20L,
+cat_solution(19L,
   instructions[
     CycleCount %in% seq(from = 20L, to = 220, by = 40L),
     sum(RegisterX * CycleCount)
