@@ -45,7 +45,7 @@ for (i in 1:nrow(instructions)) {
   if (instructions[i, visible]) {
     cat("#")
   } else {
-    cat(".")
+    cat(" ")
   }
 }
 catn()
