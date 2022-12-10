@@ -16,12 +16,6 @@ instructions[, ':='(CycleCount = cumsum(Cost), RegisterX = NA_integer_)]
 instructions[Instr == "addx", RegisterX := cumsum(Arg) + 1L]
 instructions[, RegisterX := nafill(RegisterX, type = "locf")]
 
-cat_solution(19L,
-  sum(sapply(seq(from = 20L, to = 220, by = 40L), \(t) {
-    instructions[CycleCount < t][max(InstrIndex) == InstrIndex, RegisterX * t]
-  }))
-)
-
 program_length <- instructions[, max(CycleCount)]
 instructions <- merge(
   data.table::data.table(CycleCount = 1:program_length),
@@ -38,6 +32,13 @@ instructions[, ':='(
   y_pos = (CycleCount - 1) %/% 40
 )]
 instructions[, visible := abs(x_pos - RegisterX) <= 1L]
+
+cat_solution(20L,
+  instructions[
+    CycleCount %in% seq(from = 20L, to = 220, by = 40L),
+    sum(RegisterX * CycleCount)
+  ]
+)
 
 cat("Puzzle 20:")
 for (i in 1:nrow(instructions)) {
