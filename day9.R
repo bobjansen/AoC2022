@@ -25,7 +25,7 @@ do_moves <- function(lines, snake_size = 2L) {
       for (j in 2:snake_size) {
         delta <- snake[j - 1L,] - snake[j,]
         if (abs(delta[[1L]]) >= 2L || abs(delta[[2L]]) >= 2L) {
-          snake[j, ] <- snake[j, ] + c(sign(delta[[1L]]), sign(delta[[2L]]))
+          snake[j,] <- snake[j,] + sign(delta)
         }
       }
       tail_path_1 <- setValue(tail_path_1, toString(snake[2L,]), TRUE)
