@@ -15,10 +15,6 @@ forest <- rbindlist(lapply(matrix, \(row) {
 }))
 forest <- data.table::setcolorder(forest, rev(names(forest)))
 data.table::setorderv(forest, c("row", "column"))
-forest[
-  row == 1L | column == 1L | row == num_rows | column == num_columns,
-  ':='(on_edge = TRUE)
-]
 
 find_blocker <- function(vec) {
   if (any(vec)) {
