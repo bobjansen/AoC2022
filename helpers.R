@@ -17,3 +17,5 @@ catn <- function(...) {
 cat_solution <- function(puzzle_id, solution) {
   catn(sprintf("Puzzle %2d: %s", puzzle_id, solution))
 }
+
+dev_null <- \(...) invisible()

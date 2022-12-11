@@ -1,32 +1,4 @@
-txt <- "Monkey 0:
-  Starting items: 79, 98
-  Operation: new = old * 19
-  Test: divisible by 23
-    If true: throw to monkey 2
-    If false: throw to monkey 3
-
-Monkey 1:
-  Starting items: 54, 65, 75, 74
-  Operation: new = old + 6
-  Test: divisible by 19
-    If true: throw to monkey 2
-    If false: throw to monkey 0
-
-Monkey 2:
-  Starting items: 79, 60, 97
-  Operation: new = old * old
-  Test: divisible by 13
-    If true: throw to monkey 1
-    If false: throw to monkey 3
-
-Monkey 3:
-  Starting items: 74
-  Operation: new = old + 3
-  Test: divisible by 17
-    If true: throw to monkey 0
-    If false: throw to monkey 1"
-
-# input_txt <- ustrsplit(txt, "\n\n")
+source("helpers.R")
 
 input_txt <- ustrsplit(readFile("input11.txt"), "\n\n")
 
@@ -34,13 +6,11 @@ setClass("Monkey", representation(
   ID = "integer",
   items = "numeric",
   operation = "function",
-  test = "function",
+  test_num = "integer",
   goal_true = "integer",
   goal_false = "integer",
   inspection_count = "integer"
 ))
-
-divisor <- 1L
 
 create_monkey <- function(txt) {
   lines <- ustrsplit(txt, "\n")
@@ -51,14 +21,15 @@ create_monkey <- function(txt) {
     if (operation_parts[[2L]] == "old") {
       function(x) x * x
     } else {
-      function(x) x * as.integer(operation_parts[[2L]])
+      y <- force(as.numeric(operation_parts[[2L]]))
+      function(x) x * y
     }
   } else {
-    function(x) x + as.integer(operation_parts[[2L]])
+    y <- force(as.numeric(operation_parts[[2L]]))
+    function(x) x + y
   }
   test_num <- as.integer(gsub("\\D+", "", lines[[4L]]))
   divisor <<- divisor * test_num
-  test <- function(x) x %% test_num == 0L
   goal_true <- as.integer(gsub("\\D+", "", lines[[5L]]))
   goal_false <- as.integer(gsub("\\D+", "", lines[[6L]]))
 
@@ -67,52 +38,51 @@ create_monkey <- function(txt) {
     ID = id,
     items = items,
     operation = operation,
-    test = test,
-    goal_true = goal_true,
-    goal_false = goal_false,
+    test_num = test_num,
+    goal_true = goal_true + 1L,
+    goal_false = goal_false + 1L,
     inspection_count = 0L
   )
 }
 
-monkeys <- sapply(input_txt, create_monkey)
-names(monkeys) <- paste("Monkey", 1:length(monkeys))
-
-do_round <- function(monkeys, divisor) {
+do_round <- function(monkeys, catter, divisor, reduce_worry = TRUE) {
   for (i in 1:length(monkeys)) {
-    monkey <- monkeys[[i]]
-    # catn("Monkey", monkey@ID)
-    for (item in monkey@items) {
-      monkey@inspection_count <- monkey@inspection_count + 1L
-      # catn("\tMonkey inspects an item with a worry level of", item)
-      worry_level <- monkey@operation(item)
-      # catn("\t\tNew worry level of", worry_level)
+    catter("Monkey", monkey@ID)
+    monkeys[[i]]@inspection_count <-
+      monkeys[[i]]@inspection_count + length(monkeys[[i]]@items)
+
+    to_true <- c()
+    to_false <- c()
+
+    for (item in monkeys[[i]]@items) {
+      catter("\tMonkey inspects an item with a worry level of", item)
+      worry_level <- monkeys[[i]]@operation(item)
+      catter("\t\tNew worry level of", worry_level)
       worry_level <- worry_level %% divisor
-      # worry_level <- as.integer(floor(worry_level / divisor))
-      # catn("\t\tMinkey got bored. New worry level of", worry_level)
-      test_result <- monkey@test(worry_level)
-      if (test_result) {
-        monkeys[[monkey@goal_true + 1L]]@items <- c(
-          monkeys[[monkey@goal_true + 1L]]@items, worry_level
-        )
+      if (reduce_worry) worry_level <- floor(worry_level / 3L)
+      catter("\t\tMonkey got bored. New worry level of", worry_level)
+      if (worry_level %% monkeys[[i]]@test_num == 0L) {
+        to_true <- c(to_true, worry_level)
       } else {
-        monkeys[[monkey@goal_false + 1L]]@items <- c(
-          monkeys[[monkey@goal_false + 1L]]@items, worry_level
-        )
+        to_false <- c(to_false, worry_level)
       }
     }
-    monkey@items <- integer(0)
-    monkeys[[i]] <- monkey
+    monkeys[[monkeys[[i]]@goal_true]]@items <-
+      c(monkeys[[monkeys[[i]]@goal_true]]@items, to_true)
+    monkeys[[monkeys[[i]]@goal_false]]@items <-
+      c(monkeys[[monkeys[[i]]@goal_false]]@items, to_false)
+    monkeys[[i]]@items <- integer(0L)
   }
   monkeys
 }
 
-for (i in 1:10000) {
-  monkeys <- do_round(monkeys, divisor=divisor)
-  if (round(i %% 10000 == 0L)) {
-    for (monkey in monkeys) {
-      catn("Monkey ", monkey@ID, ": ", toString(monkey@items), sep="")
-    }
-  }
+
+divisor <- 1
+monkeys <- sapply(input_txt, create_monkey)
+names(monkeys) <- paste("Monkey", 1:length(monkeys))
+
+for (i in 1:20) {
+  monkeys <- do_round(monkeys, catter = dev_null, divisor=divisor)
 }
 
 counts <- c()
@@ -120,4 +90,22 @@ for (monkey in monkeys) {
   counts <- c(counts, monkey@inspection_count)
   catn("Monkey ", monkey@ID, ": ", monkey@inspection_count, sep="")
 }
-prod(sort(counts, decreasing = TRUE)[1:2])
+cat_solution(21L, prod(sort(counts, decreasing = TRUE)[1:2]))
+
+
+divisor <- 1
+monkeys <- sapply(input_txt, create_monkey)
+names(monkeys) <- paste("Monkey", 1:length(monkeys))
+
+for (i in 1:10000) {
+  monkeys <- do_round(
+    monkeys, catter = dev_null, divisor = divisor, reduce_worry = FALSE
+  )
+}
+
+counts <- c()
+for (monkey in monkeys) {
+  counts <- c(counts, monkey@inspection_count)
+  catn("Monkey ", monkey@ID, ": ", monkey@inspection_count, sep="")
+}
+cat_solution(22L, prod(sort(counts, decreasing = TRUE)[1:2]))
