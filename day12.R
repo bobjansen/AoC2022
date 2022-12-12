@@ -8,6 +8,7 @@ abdefghi"
 
 translate <- c("S", letters, "E")
 heights <- strsplit(ustrsplit(readFile("input12.txt"), "\n"), "")
+# heights <- strsplit(ustrsplit(txt, "\n"), "")
 heights <- sapply(heights, \(.) match(., translate) -1L)
 
 directions <- list(c(1L, 0L), c(0L, -1L), c(-1L, 0L), c(0L, 1L))
@@ -76,8 +77,8 @@ while (length(destinations) > 0L) {
 
 print(visited[toString(start_at)])
 
-sapply(which(heights == 1L), function(index) {
+distances <- sapply(which(heights == 1L), function(index) {
   point <- find_coords(index)
-  browser()
   visited[toString(point)]
 })
+cat_solution(24L, min(unlist(distances)))
