@@ -18,7 +18,7 @@ compare_element <- function(left, right) {
         return(HIGHER)
       } else {
         res <- compare_element(left[[i]], right[[i]])
-        if (res %in% c(LOWER, HIGHER)) return(res)
+        if (res != EQUAL) return(res)
       }
     }
 
@@ -44,9 +44,10 @@ divider_start <- "[[2]]"
 divider_end <- "[[6]]"
 groups <- c(groups, divider_start, divider_end)
 
+# Neat: https://stackoverflow.com/a/70138588/862288
 groups <- structure(groups, class = "packet")
 `>.packet` <- compare_group
 
 groups <- unclass(sort(groups, decreasing = TRUE))
 
-cat_solution(25L, which(groups == divider_start) * which(groups == divider_end))
+cat_solution(26L, which(groups == divider_start) * which(groups == divider_end))
