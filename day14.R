@@ -4,7 +4,7 @@ txt <- "498,4 -> 498,6 -> 496,6
 
 txt <- readFile("input14.txt")
 
-part2 <- FALSE
+part2 <- TRUE
 
 parts <- lapply(
   ustrsplit(txt, "\n"),
@@ -16,28 +16,24 @@ parts <- lapply(
   })
 
 height <- max(sapply(parts, \(coords) max(sapply(coords, \(.) .[[2L]])))) + 1L
+width <- 500L + height + 1L
 cave <- if (part2) {
   height <- height + 2L
-  parts <- c(parts, list(list(c(1L, height -1L), c(1001L, height -1L))))
-  matrix(0L, height, 1001L)
+  parts <- c(parts, list(list(c(1L, height -1L), c(width, height -1L))))
+  matrix(0L, height, width)
 } else {
-  matrix(0L, height + 1L, 1001L)
+  matrix(0L, height + 1L, width)
 }
 
 source <- c(1L, 500L)
-
 
 cave[source[[1L]], source[[2L]]] <- -1L
 
 add_rocks <- function(cave, start, end) {
   if (start[[1L]] == end[[1L]]) {
-    for (i in start[[2L]]:end[[2L]]) {
-      cave[i + 1L, start[[1L]]] <- 2L
-    }
+    cave[(start[[2L]]:end[[2L]]) + 1L, start[[1L]]] <- 2L
   } else {
-    for (i in start[[1L]]:end[[1L]]) {
-      cave[start[[2L]] + 1L, i] <- 2L
-    }
+    cave[start[[2L]] + 1L, start[[1L]]:end[[1L]]] <- 2L
   }
   cave
 }
@@ -65,10 +61,6 @@ create_cave <- function(cave, parts) {
   }
   cave
 }
-cave <- create_cave(cave, parts)
-
-drop_count <- 0L
-done <- FALSE
 
 win_condition <- if (!part2) {
   function(cave, source) source[[1L]] >= height
@@ -76,15 +68,14 @@ win_condition <- if (!part2) {
   function(cave, source) cave[source[[1L]], source[[2L]]] == 1L
 }
 
+done <- FALSE
 drop_sand <- function(cave, source) {
   position <- source
   while (cave[position[[1L]], position[[2L]]] <= 0L) {
-    if (position[[1L]] > height ||
-        length(cave[position[[1L]] + 1L, position[[2L]]]) == -1L) {
-
+    if (position[[1L]] > height) {
       done <<- TRUE
       return(cave)
-    } else    if (cave[position[[1L]] + 1L, position[[2L]]] == 0L) {
+    } else if (cave[position[[1L]] + 1L, position[[2L]]] == 0L) {
       position <- c(position[[1L]] + 1L, position[[2L]])
     } else if (cave[position[[1L]] + 1L, position[[2L]] - 1L] == 0L) {
       position <- c(position[[1L]] + 1L, position[[2L]] - 1L)
@@ -92,19 +83,22 @@ drop_sand <- function(cave, source) {
       position <- c(position[[1L]] + 1L, position[[2L]] + 1L)
     } else {
       cave[position[[1L]], position[[2L]]] <- 1L
-      drop_count <<- drop_count + 1L
     }
   }
-  if (win_condition(cave, source)) done <<- TRUE
+  # if (win_condition(cave, source)) done <<- TRUE
+  if (cave[source[[1L]], source[[2L]]] == 1L) done <<- TRUE
+
   cave
 }
 
-i <- 0L
-while (!done && i < 30000) {
-  i <- i + 1L
-  # if (i %% 10000L == 0L) print_cave(cave)
-  cave <- drop_sand(cave, source)
-  # tryCatch(cave <- drop_sand(cave, source), error=function() done <<- TRUE)
-}
+cave <- create_cave(cave, parts)
 
-cat_solution(27, drop_count)
+run <- function() {
+  i <- 0L
+  while (!done && i < 30000) {
+    i <- i + 1L
+    cave <- drop_sand(cave, source)
+  }
+
+  cat_solution(27, sum(cave == 1L))
+}
