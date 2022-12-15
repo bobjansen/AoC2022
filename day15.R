@@ -33,8 +33,6 @@ overlap <- c()
 
 beacon_hits <- dictionary()
 
-hit_count <- 0L
-
 for (position in positions) {
   md <- abs(position[[1L]] - position[[3L]]) +
     abs(position[[2L]] - position[[4L]])
@@ -47,8 +45,6 @@ for (position in positions) {
       setValue(beacon_hits, toString(c(position[[3L]], position[[4L]])), TRUE)
     }
 
-    hit_count <- hit_count + 1L
-
     catn("md:", md)
     catn("y_dist:", y_dist)
     catn("delta:", delta)
@@ -57,5 +53,4 @@ for (position in positions) {
   }
 }
 
-catn("hit_count", hit_count)
 print(length(unique(overlap)) - size(beacon_hits))
