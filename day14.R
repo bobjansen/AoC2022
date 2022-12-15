@@ -51,11 +51,8 @@ create_cave <- function(cave, parts) {
     if (length(part) == 1L) {
       cave[part[[1L]][[1L]], part[[1L]][[2L]]] <- 1L
     } else {
-      start <- part[[1L]]
-      for (i in 2:length(part)) {
-        end <- part[[i]]
-        cave <- add_rocks(cave, start, end)
-        start <- end
+      for (i in 1:(length(part) - 1L)) {
+        cave <- add_rocks(cave, part[[1L]], part[[i + 1L]])
       }
     }
   }
@@ -94,11 +91,11 @@ drop_sand <- function(cave, source) {
 cave <- create_cave(cave, parts)
 
 run <- function() {
-  i <- 0L
-  while (!done && i < 30000) {
-    i <- i + 1L
+  while (!done) {
     cave <- drop_sand(cave, source)
   }
 
   cat_solution(27, sum(cave == 1L))
 }
+
+run()
