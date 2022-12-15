@@ -97,3 +97,6 @@ while (column < 0L && i < upper_bound) {
 }
 catn("Row: ", i)
 catn("Column: ", column)
+
+# Now calculate:
+cat(sprintf("%014d%06d + \n%020d", 4L * column, 0L, i))
