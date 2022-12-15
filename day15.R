@@ -49,15 +49,15 @@ join_intervals <- function(lefts, rights) {
   the_order <- order(lefts)
   lefts <- lefts[the_order]
   rights <- rights[the_order]
-  if (lefts[[1L]] > 0L || max(rights) < target_row) return(TRUE)
+  if (lefts[[1L]] > 0L || max(rights) < target_row) return(-1L)
 
   right_bound <- rights[[1L]]
 
   for (i in seq_len(n_intervals - 1L) + 1L) {
-    if (lefts[[i]] > right_bound) return(TRUE)
+    if (lefts[[i]] > right_bound) return(right_bound + 1L)
     right_bound <- max(right_bound, rights[[i]])
   }
-  FALSE
+  -1L
 }
 
 scan_row <- function(positions, target_row) {
@@ -88,12 +88,12 @@ scan_row <- function(positions, target_row) {
 print(length(unique(scan_row(positions, 10L))) -
         length(beacons[[toString(target_row)]]))
 
-done <- FALSE
+column <- -1L
 i <- 0L
-while (!done && i < upper_bound) {
+while (column < 0L && i < upper_bound) {
   i <- i + 1L
   if (i %% 100000L == 0L) catn("Row:", i)
-  done <- scan_row(positions, i)
+  column <- scan_row(positions, i)
 }
 catn("Row: ", i)
-
+catn("Column: ", column)
