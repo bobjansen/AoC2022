@@ -55,25 +55,44 @@ steps <- list()
 
 set.seed(42L)
 
-explore <- function(valves, location, budget, current_flow, open_valves, flow_per_time, steps) {
-
-  if (open_valves == candidates) {
+explore <- function(
+    valves, location, budget, current_flow, open_valves, flow_per_time, steps
+) {
+  if (open_valves == candidates ||
+      current_flow + budget * (budget - 1L) * 11L < max_flow) {
     return(current_flow)
   }
-  if (current_flow + budget * (budget + 1L) * 11L < max_flow) {
-    return(current_flow)
+
+  steps[[length(steps) + 1L]] <- list(
+    location = location,
+    flow_per_time = flow_per_time,
+    open_valves = open_valves
+  )
+
+
+  if (!valves[[location]]@open && valves[[location]]@flow > 0L) {
+    valves[[location]]@open <- TRUE
+
+    new_flow <- current_flow + valves[[location]]@flow * (budget - 1L)
+    if (new_flow > max_flow) {
+      max_flow <<- new_flow
+      catn("Max flow:", max_flow)
+    }
+    if (budget > 2L) {
+      for (destination in valves[[location]]@destinations) {
+        explore(
+          valves,
+          destination,
+          budget - 2L,
+          new_flow,
+          open_valves + 1L,
+          flow_per_time + valves[[location]]@flow,
+          steps)
+      }
+    }
   }
 
-  # if (runif(1L) > 0.999) {
-  #   catn("Entering", location, "at", budget, "with current flow", current_flow)
-  # }
   if (budget > 2L) {
-    steps[[length(steps) + 1L]] <- list(
-      location = location,
-      flow_per_time = flow_per_time,
-      open_valves = open_valves
-    )
-
     for (destination in valves[[location]]@destinations) {
       if (length(steps) == 1L ||
           destination != steps[[length(steps) - 1L]]$location) {
@@ -84,31 +103,6 @@ explore <- function(valves, location, budget, current_flow, open_valves, flow_pe
     }
   }
 
-  if (!valves[[location]]@open && valves[[location]]@flow > 0L) {
-    budget <- budget - 1L
-    current_flow <- current_flow + valves[[location]]@flow * budget
-    valves[[location]]@open <- TRUE
-
-    steps[[length(steps) + 1L]] <- list(
-      location = location,
-      flow_per_time = flow_per_time,
-      open_valves = open_valves
-    )
-    open_valves <- open_valves + 1L
-    flow_per_time <- flow_per_time + valves[[location]]@flow
-
-    if (current_flow > max_flow) {
-      max_flow <<- current_flow
-      catn("Max flow:", max_flow)
-    }
-    if (budget > 2L) {
-      for (destination in valves[[location]]@destinations) {
-        explore(
-          valves,
-          destination, budget - 1L, current_flow, open_valves, flow_per_time, steps)
-      }
-    }
-  }
 
 }
 
