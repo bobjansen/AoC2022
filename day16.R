@@ -40,23 +40,38 @@ create_valve <- function(line) {
     ID = id,
     flow = flow,
     destinations = destinations,
-    open = FALSE
+    open = flow == 0L
   )
 }
 
 valves <- sapply(lines, create_valve)
 names(valves) <- valve_ids
 
+state_scores <- matrix(-1L, length(valve_ids), total_time)
+row.names(state_scores) <- valve_ids
+
 max_flow <- 0L
 location <- "AA"
 total_time <- 30L
+no_hits <- 0L
+hits <- 0L
 
 explore <- function(
     valves, location, budget, current_flow, flow_per_time, last_location
 ) {
-  if (current_flow + (budget - 1L) * (potential_flow - flow_per_time) <= max_flow) {
-    return(current_flow)
+  if (current_flow + (budget - 1L) * (potential_flow - flow_per_time) <=
+      max_flow) {
+    return()
   }
+
+  if (max(-1L, state_scores[location, seq_len(total_time - budget)]) >=
+      current_flow) {
+    hits <<- hits + 1L
+    return()
+  }
+  no_hits <<- no_hits + 1L
+  state_scores[location, total_time - budget + 1L] <- current_flow
+  state_scores <<- state_scores
 
   flow <- valves[[location]]@flow
   destinations <- valves[[location]]@destinations
@@ -69,7 +84,7 @@ explore <- function(
       catn("Max flow:", max_flow)
     }
     if (potential_flow - flow_per_time == 0L) {
-      return(current_flow)
+      return()
     }
     if (budget > 2L) {
       for (destination in destinations) {
@@ -96,5 +111,7 @@ explore <- function(
   }
 }
 
-profvis::profvis(explore(valves, "AA", total_time, 0L, 0L, ""))
+explore(valves, "AA", total_time, 0L, 0L, "")
+catn("hits", hits)
+catn("no_hits", no_hits)
 cat_solution(31L, max_flow)
