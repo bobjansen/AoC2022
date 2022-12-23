@@ -160,11 +160,11 @@ can_move <- function(state, block_index, new_location) {
 
 block_count <- 0L
 i <- 0L
-tops <- c()
-block_counts <- c()
+# tops <- c()
+# block_counts <- c()
 # while (block_count <= 5L * 2022L) {
-# while (block_count <= 1228L) {
-while (i < 4 * length(gusts)) {
+while (block_count <= 1724L + 1725L + 1601L) {
+# while (i < 4 * length(gusts)) {
   i <- i + 1L
   if (!state$moving) {
     block_count <- block_count + 1L
@@ -188,8 +188,8 @@ while (i < 4 * length(gusts)) {
     catn("Block count:", block_count)
     catn("Top row:", state$top_row)
     # print_board(state, state$top_row - 10L, 20L)
-    block_counts <- c(block_counts, block_count)
-    tops <- c(tops, state$top_row)
+    # block_counts <- c(block_counts, block_count)
+    # tops <- c(tops, state$top_row)
   }
   gust <- gusts[[gust_index]]
   if (gust == "<") {
@@ -209,5 +209,12 @@ while (i < 4 * length(gusts)) {
 
 cat_solution(35, state$top_row)
 
+options(digits = 18L)
+num_blocks <- 1000000000000
+block_per_cycle <- block_counts[[3L]] - block_counts[[2L]]
+full_cycles <- floor((num_blocks - block_counts[[1L]]) / block_per_cycle)
 
-
+num_blocks_at_end <- 1000000000000 -
+  (full_cycles * block_per_cycle + block_counts[[1L]])
+end_rows <- 2526
+full_cycles * (tops[[3L]] - tops[[2L]]) + tops[[1L]] + end_rows
