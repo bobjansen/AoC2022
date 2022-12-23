@@ -1,30 +1,50 @@
 source("helpers.R")
+txt <- "
+2,2,2
+1,2,2
+3,2,2
+2,1,2
+2,3,2
+2,2,1
+2,2,3
+2,2,4
+2,2,6
+1,2,5
+3,2,5
+2,1,5
+2,3,5"
 txt <- readFile("input18.csv")
 
 cubes <- data.table::fread(text=txt)
-cols <-
-setnames(cubes, c("x", "y", "z"))
-setkey(cubes, "x", "y", "z")
+cols <-c("x", "y", "z")
+setnames(cubes, cols)
+setkeyv(cubes, cols)
 
-neighbors <- list(
-  c(1L, 0L, 0L),
-  c(0L, 1L, 0L),
-  c(0L, 0L, 1L),
-  c(-1L, 0L, 0L),
-  c(0L, -1L, 0L),
-  c(0L, 0L, -1L)
+cubes[, ':='(x = x + 1L, y = y + 1L, z = z + 1L)]
+
+max_x <- cubes[, max(x)]
+max_y <- cubes[, max(y)]
+max_z <- cubes[, max(z)]
+
+neighbors <- c(
+  (max_z + 1L) * (max_y + 1L),
+  (max_z + 1L),
+  1L
 )
+neighbors <- c(neighbors, -neighbors)
 
-locations <- list()
-for (i in 1:nrow(cubes)) {
-  locations[toString(cubes[i, ])] <- TRUE
+cubes[, index := x * neighbors[[1L]] + y * neighbors[[2L]] + z + 1L]
+
+space <- rep(FALSE, max_x * neighbors[[1L]] + max_y * neighbors[[2L]] + max_z)
+for (index in cubes$index) {
+  space[index] <- TRUE
 }
-locations <- names(locations)
 
 neighbor_count <- 0L
-for (i in 1:nrow(cubes)) {
+for (index in cubes$index) {
   for (neighbor in neighbors) {
-    if (toString(cubes[i, ] + neighbor) %in% locations) {
+    candidate <- index + neighbor
+    if (candidate >= 0L && candidate <= length(space) && space[candidate]) {
       neighbor_count <- neighbor_count + 1L
     }
   }
