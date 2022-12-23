@@ -1,18 +1,5 @@
 source("helpers.R")
-txt <- "
-2,2,2
-1,2,2
-3,2,2
-2,1,2
-2,3,2
-2,2,1
-2,2,3
-2,2,4
-2,2,6
-1,2,5
-3,2,5
-2,1,5
-2,3,5"
+
 txt <- readFile("input18.csv")
 
 cubes <- data.table::fread(text=txt)
