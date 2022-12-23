@@ -207,7 +207,7 @@ while (block_count <= 1724L + 1725L + 1601L) {
   # print(state$top_left)
 }
 
-cat_solution(35, state$top_row)
+cat_solution(33L, state$top_row)
 
 options(digits = 18L)
 num_blocks <- 1000000000000
