@@ -1,5 +1,6 @@
 library(data.table)
 library(recollections)
+library(zeallot)
 
 readFile <- function(file) {
   readChar(file, file.info(file)$size)
