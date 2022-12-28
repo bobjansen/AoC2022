@@ -58,6 +58,8 @@ changes <- Inf
 i <- 0L
 while (changes > 0L) {
   i <- i + 1L
+
+  setorderv(positions, c("row", "col"))
   positions[,
     c("next_row", "next_col") := next_position(
       .SD$row, .SD$col, dt = positions, round = i
@@ -74,12 +76,13 @@ while (changes > 0L) {
   catn(i, ": changes: ", changes, sep = "")
   if (i > 15L) print(head(positions[sel]))
   positions[sel, ':='(row = new_row, col = new_col)]
-  if (i == 10) {
+  if (i %% 10 == 0L) {
     result <-
       positions[,
       .(rows = max(row) - min(row) + 1L, cols = max(col) - min(col) + 1L)]
     cat_solution(46L, result$rows * result$cols - nrow(positions))
-    break
   }
 }
 }
+
+run()
