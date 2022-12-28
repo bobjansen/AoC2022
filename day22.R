@@ -1,5 +1,7 @@
 source("helpers.R")
 
+part2 <- FALSE
+
 txt <- "        ...#
         .#..
         #...
@@ -36,40 +38,62 @@ zimod <- function(e1, e2) {
   ((e1 - 1L) %% e2) + 1L
 }
 
-find_next <- function(tiles, location, distance, step = 1L) {
-  test_location <- location
-  for (i in 1:distance) {
-    test_location <- zimod(test_location + step, length(tiles))
-    while (tiles[[test_location]] == 0L) {
+if (!part2) {
+  find_next <- function(tiles, location, distance, direction_index, step = 1L) {
+    test_location <- location
+    for (i in 1:distance) {
       test_location <- zimod(test_location + step, length(tiles))
+      while (tiles[[test_location]] == 0L) {
+        test_location <- zimod(test_location + step, length(tiles))
+      }
+      if (tiles[[test_location]] == 2L) {
+        return(list(location = location, direction_index = direction_index))
+      }
+      location <- test_location
     }
-    if (tiles[[test_location]] == 2L) return(location)
-    location <- test_location
+    list(location = location, direction_index = direction_index)
   }
-  location
 }
 
 direction_index <- 1L
 directions <- list(
-  "east" = \(location, distance) {
-    new_loc <- find_next(map[location$row,], location$column, distance)
-    list(row = location$row, column = new_loc)
-  },
-  "south" = \(location, distance) {
-    new_loc <- find_next(map[, location$column], location$row, distance)
-    list(row = new_loc, column = location$column)
-  },
-  "west" = \(location, distance) {
+  "east" = \(location, direction_index, distance) {
     new_loc <- find_next(
-      map[location$row,], location$column, distance, step = -1L
+      map[location$row,], location$column, distance, direction_index
     )
-    list(row = location$row, column = new_loc)
+    list(
+      location = list(row = location$row, column = new_loc$location),
+      direction_index = direction_index
+    )
   },
-  "north" = \(location, distance) {
+  "south" = \(location, direction_index, distance) {
     new_loc <- find_next(
-      map[, location$column], location$row, distance, step = -1L
+      map[, location$column], location$row, distance, direction_index
     )
-    list(row = new_loc, column = location$column)
+    list(
+      location = list(row =new_loc$location, column = location$column),
+      direction_index = direction_index
+    )
+  },
+  "west" = \(location, direction_index, distance) {
+    new_loc <- find_next(
+      map[location$row,], location$column, distance, direction_index,
+      step = -1L
+    )
+    list(
+      location = list(row = location$row, column = new_loc$location),
+      direction_index = direction_index
+    )
+  },
+  "north" = \(location, direction_index, distance) {
+    new_loc <- find_next(
+      map[, location$column], location$row, distance, direction_index,
+      step = -1L
+    )
+    list(
+      location = list(row = new_loc$location, column = location$column),
+      direction_index = direction_index
+    )
   }
 )
 
@@ -85,7 +109,9 @@ print_map <- function(map, location) {
 
 location <- list(row = 1, column = which.max(map[1, ] == 1L))
 for (i in 1:length(steps)) {
-  location <- directions[[direction_index]](location, steps[[i]])
+  update <- directions[[direction_index]](location, direction_index, steps[[i]])
+  location <- update$location
+  direction_index <- update$direction_index
   if (i < length(turns)) {
     if (turns[[i]] == "L") {
       direction_index <- direction_index - 1L
@@ -94,7 +120,7 @@ for (i in 1:length(steps)) {
     }
     direction_index <- zimod(direction_index, length(directions))
   }
-  catn("Position:", location$row, ",", location$column)
+  # catn("Position:", location$row, ",", location$column)
 }
 
 cat_solution(
